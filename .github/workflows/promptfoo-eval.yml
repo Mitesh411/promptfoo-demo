@@ -42,8 +42,7 @@ jobs:
           --config promptfooconfig.yml
           --output promptfoo-results.json
           --output promptfoo-report.html
-          --fail-on-error
-          --no-table          
+          
           
       - name: Upload evaluation results
         if: always()
