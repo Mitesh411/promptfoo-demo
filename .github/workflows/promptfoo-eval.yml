@@ -41,11 +41,17 @@ jobs:
           npx --yes promptfoo@latest eval
           --config promptfooconfig.yml
           --output promptfoo-results.json
-
+          --output promptfoo-report.html
+          --fail-on-error
+          --no-table          
+          
       - name: Upload evaluation results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: promptfoo-results
-          path: promptfoo-results.json
+          name: promptfoo-reports-${{ github.run_number }}
+          path: |
+                promptfoo-results.json
+                promptfoo-report.html
           if-no-files-found: warn
+          retention-days: 14  
