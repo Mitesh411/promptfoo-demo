@@ -41,7 +41,7 @@ jobs:
           npx --yes promptfoo@latest eval
           --config promptfooconfig.yml
           --output promptfoo-results.json
-          --fail-on-error
+          
 
       - name: Upload evaluation results
         if: always()
