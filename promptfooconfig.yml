@@ -7,7 +7,7 @@ prompts:
     Customer question: {{question}}
 
 providers:
-  - id: openrouter:openai/gpt-4o-mini
+  - id: openrouter:qwen/qwen3.8-27b:free
     config:
       temperature: 0
 
