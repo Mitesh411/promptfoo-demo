@@ -21,12 +21,12 @@ jobs:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Cache Promptfoo responses
         uses: actions/cache@v4
@@ -45,7 +45,7 @@ jobs:
 
       - name: Upload evaluation results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: promptfoo-results
           path: promptfoo-results.json
