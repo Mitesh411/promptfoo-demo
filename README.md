@@ -39,8 +39,7 @@ failed assertion makes the pull request or push check fail.
    export OPENROUTER_API_KEY='your-openrouter-key'
    npx --yes promptfoo@latest eval \
      --config promptfooconfig.yml \
-     --output promptfoo-results.json \
-     --fail-on-error
+     --output promptfoo-results.json
    ```
 
 7. **Push or open a pull request.** The workflow runs for pull requests, pushes
@@ -50,8 +49,7 @@ failed assertion makes the pull request or push check fail.
 
 ## How the pass/fail gate works
 
-The `--fail-on-error` option causes the evaluation command to return a non-zero
-status when the test has a failing assertion. GitHub Actions then marks the
+Promptfoo evaluation returns a non-zero status code when tests fail or encounter errors. GitHub Actions then marks the
 **Promptfoo quality gate** check as failed. Configure that check as a required
 status check in your branch-protection rules to prevent merges until prompt
 quality passes.

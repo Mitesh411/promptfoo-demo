@@ -11,6 +11,10 @@ providers:
     config:
       temperature: 0
 
+defaultTest:
+  options:
+    provider: openrouter:openai/gpt-4o-mini
+
 tests:
   - description: Gives a useful cancellation answer without fabricating details
     vars:
