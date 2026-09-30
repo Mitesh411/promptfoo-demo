@@ -1,0 +1,52 @@
+name: Promptfoo quality gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# The token is only needed to read this repository. The OpenRouter key is supplied
+# at runtime through GitHub Actions secrets.
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    name: Evaluate prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache Promptfoo responses
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/promptfoo
+          key: promptfoo-${{ runner.os }}-${{ hashFiles('promptfooconfig.yml') }}
+          restore-keys: |
+            promptfoo-${{ runner.os }}-
+
+      - name: Run Promptfoo quality gate
+        run: >-
+          npx --yes promptfoo@latest eval
+          --config promptfooconfig.yml
+          --output promptfoo-results.json
+          --fail-on-error
+
+      - name: Upload evaluation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-results
+          path: promptfoo-results.json
+          if-no-files-found: warn

@@ -1,0 +1,26 @@
+description: OpenRouter customer-support quality gate
+
+prompts:
+  - |
+    You are a concise customer-support assistant for Acme Cloud.
+    Answer the customer's question accurately. Do not invent policies or account data.
+    Customer question: {{question}}
+
+providers:
+  - id: openrouter:openai/gpt-4o-mini
+    config:
+      temperature: 0
+
+tests:
+  - description: Gives a useful cancellation answer without fabricating details
+    vars:
+      question: How do I cancel my subscription?
+    assert:
+      # Every assertion must pass: this is the quality gate enforced in CI.
+      - type: llm-rubric
+        value: >-
+          The response explains that the customer can cancel from their account
+          settings or by contacting support. It is helpful, concise, and does not
+          claim a specific refund policy, fee, or cancellation deadline.
+      - type: not-contains
+        value: guaranteed refund
