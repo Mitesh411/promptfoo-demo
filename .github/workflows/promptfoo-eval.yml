@@ -1,7 +1,6 @@
 name: Promptfoo quality gate
-
 on:
-   push:
+  push:
     branches:
       - main
   workflow_dispatch:
@@ -41,15 +40,14 @@ jobs:
           --config promptfooconfig.yml
           --output promptfoo-results.json
           --output promptfoo-report.html
-          
-          
+
       - name: Upload evaluation results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: promptfoo-reports-${{ github.run_number }}
           path: |
-                promptfoo-results.json
-                promptfoo-report.html
+            promptfoo-results.json
+            promptfoo-report.html
           if-no-files-found: warn
-          retention-days: 14  
+          retention-days: 14
