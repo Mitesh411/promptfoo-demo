@@ -1,8 +1,7 @@
 name: Promptfoo quality gate
 
 on:
-  pull_request:
-  push:
+   push:
     branches:
       - main
   workflow_dispatch:
