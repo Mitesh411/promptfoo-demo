@@ -17,7 +17,7 @@ prompts:
     Customer question: {{question}}
 
 providers:
-  - id: google/gemma-4-26b-a4b-it:free
+  - id: openrouter:google/gemma-4-26b-a4b-it:free
     config:
       temperature: 0
 
