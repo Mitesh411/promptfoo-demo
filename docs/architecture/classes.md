@@ -92,7 +92,7 @@ The central orchestrator responsible for parsing configuration files, rendering 
 Configuration value object holding parsed representations of prompts, targets, default options, and test suites defined in `promptfooconfig.yml`.
 
 ### `OpenRouterProvider`
-API client handler implementing provider interfaces to communicate with OpenRouter endpoints (e.g. `openrouter:qwen/qwen3.8-27b:free`), passing parameters such as temperature and authorization headers.
+API client handler implementing provider interfaces to communicate with OpenRouter endpoints (e.g. `openrouter:google/gemma-4-26b-a4b-it:free`), passing parameters such as temperature and authorization headers.
 
 ### `Assertion` (Interface) & Concrete Evaluators
 - **`LlmRubricAssertion`**: Dispatches the target output alongside a grading prompt to an evaluator LLM (e.g. `openrouter:openai/gpt-4o-mini`) to perform semantic compliance scoring.

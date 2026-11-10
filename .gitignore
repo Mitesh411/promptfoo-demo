@@ -1,0 +1,8 @@
+# Promptfoo quality-gate outputs
+promptfoo-results.json
+promptfoo-report.html
+
+# Promptfoo red team outputs (generated probes contain adversarial content)
+redteam.yaml
+redteam-results.json
+redteam-report.html

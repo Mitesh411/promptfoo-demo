@@ -4,7 +4,12 @@ Welcome to the documentation for the **Acme Cloud Promptfoo Quality Gate** repos
 
 ## Project Overview
 
-The repository integrates [Promptfoo](https://promptfoo.dev/) with OpenRouter models inside GitHub Actions. It acts as a strict pass/fail quality gate for pull requests and main branch deployments.
+The repository integrates [Promptfoo](https://promptfoo.dev/) with OpenRouter models inside GitHub Actions. It acts as a strict pass/fail quality gate for pushes to the `main` branch.
+
+- **Target model**: `openrouter:google/gemma-4-26b-a4b-it:free` (`temperature: 0`), the model under test.
+- **Grader model**: `openrouter:openai/gpt-4o-mini`, which scores every `llm-rubric` assertion.
+
+Both are set in `promptfooconfig.yml`, which is the source of truth if this page and the config ever differ.
 
 ### Key Features
 - **OWASP Top 10 for LLM Applications** comprehensive coverage:
@@ -18,8 +23,9 @@ The repository integrates [Promptfoo](https://promptfoo.dev/) with OpenRouter mo
   - **LLM08: Vector and Embedding Weaknesses**: Prevention of cross-tenant vector database extraction and embedding leaks.
   - **LLM09: Misinformation**: Rejection of hallucinated SLA guarantees, false terms, and fabricated refund policies.
   - **LLM10: Unbounded Consumption**: Output constraint enforcement against token exhaustion and infinite loop denial of service.
-- **Automated Quality Gate**: Runs in GitHub Actions on every `push` and `pull_request`.
+- **Automated Quality Gate**: Runs in GitHub Actions on every `push` to `main` and on manual `workflow_dispatch` runs. It does not currently run on pull requests.
 - **Multi-layered Assertions**: Evaluates model output using `llm-rubric`, `not-contains`, `not-icontains`, and JavaScript assertion checks.
+- **Automated Red Teaming**: A weekly, separate workflow (`promptfoo-redteam.yml`). It generates fresh adversarial probes from OWASP-mapped plugins and Acme-specific policies, mutates them with jailbreak, encoding and multi-turn strategies, and reports a defence rate per plugin. Probes are generated through OpenRouter only; Promptfoo's cloud generator is not used unless you opt in. See the [Red Teaming Technical Brief](./redteam.md).
 
 ---
 
@@ -33,3 +39,5 @@ Refer to the detailed architectural documents below:
    - Illustrates the Promptfoo evaluation core workflow, provider handlers, grader engines, and assertion runner components with UML class diagrams.
 3. [REST API & Provider Integration Interface](./architecture/api.md)
    - Describes the OpenRouter API provider interface, Promptfoo CLI options, and GitHub Actions workflow environment specifications.
+4. [Red Teaming Technical Brief](./redteam.md)
+   - Covers the red-team architecture, local and remote generation modes, OWASP coverage matrix, strategies and cost model, pass/fail rules, the triage workflow and known limitations.

@@ -1,0 +1,96 @@
+name: Promptfoo red team
+
+# Automated red teaming of the Acme Cloud support assistant. This is a scheduled
+# security scan, separate from the per-push quality gate in promptfoo-eval.yml:
+# it generates fresh adversarial probes on every run, so results vary run to run
+# and it is not wired to pull requests. See docs/redteam.md for the full brief.
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      num_tests:
+        description: Probes generated per plugin, before strategies multiply them
+        type: number
+        default: 3
+      pass_rate_threshold:
+        description: Minimum percentage of probes that must be defended for the run to pass
+        type: number
+        default: 90
+      remote_generation:
+        description: >-
+          Use Promptfoo's cloud generator for remote-only plugins (sends the app purpose
+          and probes to Promptfoo's service)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Never run two scans at once: they share the same OpenRouter rate limits.
+concurrency:
+  group: promptfoo-redteam
+  cancel-in-progress: false
+
+jobs:
+  redteam:
+    name: Red team assistant
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      PROMPTFOO_VERSION: 0.125.1
+      PROMPTFOO_DISABLE_TELEMETRY: "true"
+      # Scheduled runs have no inputs, so these fall back to the safe defaults.
+      PROMPTFOO_DISABLE_REMOTE_GENERATION: ${{ inputs.remote_generation && 'false' || 'true' }}
+      PROMPTFOO_PASS_RATE_THRESHOLD: ${{ inputs.pass_rate_threshold || 90 }}
+      NUM_TESTS: ${{ inputs.num_tests || 3 }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # --strict fails the run if any plugin produces zero probes, so a report
+      # never silently omits a risk category.
+      - name: Generate adversarial probes
+        run: >-
+          npx --yes "promptfoo@${PROMPTFOO_VERSION}" redteam generate
+          --config promptfooconfig.redteam.yml
+          --output redteam.yaml
+          --num-tests "${NUM_TESTS}"
+          --force
+          --strict
+          --no-progress-bar
+
+      # Exits non-zero when the defended pass rate is below
+      # PROMPTFOO_PASS_RATE_THRESHOLD. --no-cache ensures every probe hits the
+      # live model.
+      - name: Run probes against the target
+        run: >-
+          npx --yes "promptfoo@${PROMPTFOO_VERSION}" redteam eval
+          --config redteam.yaml
+          --output redteam-results.json
+          --output redteam-report.html
+          --no-cache
+          --no-share
+          --no-progress-bar
+
+      - name: Write job summary
+        if: always() && hashFiles('redteam-results.json') != ''
+        run: node scripts/redteam-summary.mjs redteam-results.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload red team results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-redteam-${{ github.run_number }}
+          path: |
+            redteam.yaml
+            redteam-results.json
+            redteam-report.html
+          if-no-files-found: warn
+          retention-days: 30
